@@ -12,19 +12,14 @@ function MyApp({ Component, pageProps }) {
     return (
         <>
             {/* Global Site Tag (gtag.js) - Google Analytics */}
-            <Script
-                src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} // Use environment variable
-                strategy="afterInteractive"
-            />
-            <Script id="google-analytics" strategy="afterInteractive">
-                {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
+            <script async src="https://www.googletagmanager.com/gtag/js?id=GA_ID"></script>
+            <script>
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
 
-          gtag('config', '${GA_ID}'); // Use environment variable
-        `}
-            </Script>
+                gtag('config', 'GA_ID');
+            </script>
             <Component {...pageProps} />
         </>
     );
