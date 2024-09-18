@@ -1,15 +1,13 @@
-// app/sign-in/page.js
-'use client';
-import { useState } from 'react';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
-import { auth } from '../firebase'; // Import auth from firebase.js
-
+"use client";
+import { useState } from "react";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { useRouter } from "next/navigation";
+import { auth } from "../firebase";
 
 const SignIn = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
 
     const auth = getAuth();
     const router = useRouter();
@@ -19,9 +17,28 @@ const SignIn = () => {
 
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            router.push('/');  // Redirect to home page after successful sign-in
+            router.push("/");
         } catch (error) {
-            setError(error.message);
+            handleFirebaseError(error.code);
+        }
+    };
+
+    const handleFirebaseError = (errorCode) => {
+        switch (errorCode) {
+            case "auth/user-not-found":
+                setError("No account found with this email. Please sign up first.");
+                break;
+            case "auth/wrong-password":
+                setError("Incorrect password. Please try again.");
+                break;
+            case "auth/invalid-email":
+                setError("Invalid email address. Please enter a valid email.");
+                break;
+            case "auth/user-disabled":
+                setError("This account has been disabled. Please contact support.");
+                break;
+            default:
+                setError("An error occurred while signing in. Please try again.");
         }
     };
 
@@ -48,14 +65,14 @@ const SignIn = () => {
                     />
                     <button
                         type="submit"
-                        className="w-full bg-purple-600 text-white p-3 rounded-md hover:bg-purple-700"
+                        className="w-full bg-dark-purple text-white p-3 rounded-md hover:bg-purple-700"
                     >
                         Sign In
                     </button>
                     {error && <p className="text-red-500 mt-4">{error}</p>}
                 </form>
                 <p className="text-center mt-4">
-                    Don't have an account?{' '}
+                    Don't have an account?{" "}
                     <a href="/sign-up" className="text-blue-500 hover:underline">
                         Sign Up
                     </a>

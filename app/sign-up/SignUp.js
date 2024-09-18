@@ -1,34 +1,62 @@
-// app/sign-up/page.js
-'use client';
-import { useState } from 'react';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
-import { auth } from '../firebase'; // Import auth from firebase.js
+"use client";
+import { useState } from "react";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { useRouter } from "next/navigation";
+import { auth } from "../firebase";
 
 const SignUp = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [message, setMessage] = useState('');
-    const [error, setError] = useState('');
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [message, setMessage] = useState("");
+    const [error, setError] = useState("");
 
     const router = useRouter();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         if (password !== confirmPassword) {
-            setError('Passwords do not match.');
+            setError("Passwords do not match.");
+            return;
+        }
+
+        if (password.length < 6) {
+            setError("Password must be at least 6 characters long.");
+            return;
+        }
+
+        if (!/\S+@\S+\.\S+/.test(email)) {
+            setError("Please enter a valid email address.");
             return;
         }
 
         try {
             await createUserWithEmailAndPassword(auth, email, password);
-            setMessage('Account created successfully. Please sign in.');
-            // Redirect after 2 seconds
-            setTimeout(() => router.push('/sign-in'), 2000);
+            setMessage("Account created successfully. Please sign in.");
+            setError("");
+            setTimeout(() => router.push("/sign-in"), 2000);
         } catch (error) {
-            setError(error.message);
+            handleFirebaseError(error.code);
+        }
+    };
+
+    const handleFirebaseError = (errorCode) => {
+        switch (errorCode) {
+            case "auth/email-already-in-use":
+                setError("This email is already in use. Please use a different email.");
+                break;
+            case "auth/invalid-email":
+                setError(
+                    "The email address is invalid. Please check your email and try again."
+                );
+                break;
+            case "auth/weak-password":
+                setError("The password is too weak. Please use a stronger password.");
+                break;
+            default:
+                setError(
+                    "An error occurred while creating the account. Please try again."
+                );
         }
     };
 
@@ -63,7 +91,7 @@ const SignUp = () => {
                     />
                     <button
                         type="submit"
-                        className="w-full bg-purple-600 text-white p-3 rounded-md hover:bg-purple-700"
+                        className="w-full bg-dark-purple text-white p-3 rounded-md hover:bg-purple-700"
                     >
                         Sign Up
                     </button>
@@ -71,7 +99,7 @@ const SignUp = () => {
                     {error && <p className="text-red-500 mt-4">{error}</p>}
                 </form>
                 <p className="text-center mt-4">
-                    Already have an account?{' '}
+                    Already have an account?{" "}
                     <a href="/sign-in" className="text-blue-500 hover:underline">
                         Sign In
                     </a>
