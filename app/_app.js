@@ -1,47 +1,30 @@
-// app/_app.js
+// pages/_app.js
 import { useEffect } from 'react';
-import { useRouter } from 'next/router';
 import Script from 'next/script';
 
-const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_TRACKING_ID;
-
 function MyApp({ Component, pageProps }) {
-    const router = useRouter();
-
     useEffect(() => {
-        const handleRouteChange = (url) => {
-            window.gtag('config', GA_TRACKING_ID, {
-                page_path: url,
-            });
-        };
-        router.events.on('routeChangeComplete', handleRouteChange);
-        return () => {
-            router.events.off('routeChangeComplete', handleRouteChange);
-        };
-    }, [router.events]);
+        // Optionally, you can add your custom Google Analytics event tracking code here.
+    }, []);
+
+    const GA_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
 
     return (
         <>
-            {/* Google Analytics Script */}
+            {/* Global Site Tag (gtag.js) - Google Analytics */}
             <Script
+                src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} // Use environment variable
                 strategy="afterInteractive"
-                src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`}
             />
-            <Script
-                id="google-analytics"
-                strategy="afterInteractive"
-                dangerouslySetInnerHTML={{
-                    __html: `
-                    window.dataLayer = window.dataLayer || [];
-                    function gtag(){dataLayer.push(arguments);}
-                    gtag('js', new Date());
+            <Script id="google-analytics" strategy="afterInteractive">
+                {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
 
-                    gtag('config', '${GA_TRACKING_ID}', {
-                      page_path: window.location.pathname,
-                    });
-                    `,
-                }}
-            />
+          gtag('config', '${GA_ID}'); // Use environment variable
+        `}
+            </Script>
             <Component {...pageProps} />
         </>
     );
